@@ -1,14 +1,22 @@
-// Get and display 12 random 
-let apiUsers;
-let searchList = [];
-let modalWrapper;
-const body = document.querySelector('body');
+//=============================================================================
+// GLOBAL VARIABLES
+//=============================================================================
+let apiUsers; // holds fetch data return
+let searchList = []; // holds current search array el
+let modalWrapper;  // Use for targeting buttons
 const gallery = document.querySelector('#gallery');
 const searchContainer = document.querySelector('.search-container');
     
-// ------------------------------------------
-//  FETCH FUNCTIONS
-// ------------------------------------------
+//=============================================================================
+// FETCH DATA
+//=============================================================================
+
+/**
+ * Fetches data and returns json Object
+ *
+ * @param {string} url api url
+ * @returns {jsonObject}
+ */
 function fetchData(url) {
     return fetch(url)
             .then(checkStatus)
@@ -17,12 +25,20 @@ function fetchData(url) {
 }
 
 fetchData('https://randomuser.me/api/?results=12&nat=us')
-    .then(data => generateUsers(data.results));
+    .then(data => generateUsers(data.results))
+    .then(generateForm)
+    .then(generateModalWrappers);
 
+//=============================================================================
+// HELPER FUNCTIONS
+//=============================================================================
 
-// ------------------------------------------
-//  HELPER FUNCTIONS
-// ------------------------------------------
+/**
+ * Handles rejections or resolution of an asynchronous connection
+ *
+ * @param {string} response 
+ * @returns {promise}
+ */
 function checkStatus(response) {
     if (response.ok) {
         return Promise.resolve(response);
@@ -31,19 +47,58 @@ function checkStatus(response) {
     }
 }
 
-function generateUsers(data) {
-    // Set the global apiUsers to the current randomUser data
-    apiUsers = data;
-
-    // add cards to screen
-    const cardsHTML = data.map((user, index) => generateCard(user, index)).join('');
-    gallery.innerHTML = cardsHTML;
-
-    generateForm();
-    generateModalWrappers();
+/**
+ * Formats birthday date
+ *
+ * @param {json} user object with user information
+ * @returns {string} markup
+ */
+function formatBirthday(string) {
+    const event = new Date(string);
+    const date = ('0' + event.getDate()).slice(-2);
+    const month = ('0' + event.getMonth()).slice(-2);
+    let year = event.getFullYear().toString().slice(-2);
+    let birthday = date + '/' + month + '/' + year;
+    return birthday;
 }
 
-function generateCard(user, index) {
+//=============================================================================
+// CARD FUNCTIONS
+//=============================================================================
+
+/**
+ * Loops through object and generates users
+ *
+ * @param {json} data response from api
+ */
+function generateUsers(data) {
+    // Assign user data to apiUser
+    apiUsers = data;
+
+    // Loop through users and creates html
+    const cardsHTML = data.map((user, index) => generateCard(user, index)).join('');
+
+    // Insert to the page
+    gallery.innerHTML = cardsHTML;
+
+    // Listeners for opening modals
+    gallery.addEventListener('click', function (e) {
+        // find the closest .card parent
+        var el = event.target.closest('.card');
+        if (el) {
+            const index = [...el.parentElement.children].indexOf(el);
+            generateSingleModal(apiUsers[index], index);
+        }
+    });
+}
+
+/**
+ * Creates markup for a user
+ *
+ * @param {json} user object with user information
+ * @returns {string} markup
+ */
+function generateCard(user) {
     const picURL =  user.picture.large; 
     const firstName = user.name.first
     const lastName = user.name.last
@@ -66,20 +121,16 @@ function generateCard(user, index) {
     return html;
 }
 
-function formatBirthday(string){
-    const event = new Date(string);
-    const date = ('0' + event.getDate() ).slice(-2);
-    const month = ('0' + event.getMonth()).slice(-2);
-    let year = event.getFullYear().toString().slice(-2);
-    let birthday = date + '/' + month + '/' + year;
-    return birthday;
-}
-
+/**
+ * Creates necessary markup for modals
+ * It also adds listeners for modal actions
+ */
 function generateModalWrappers() {
+    // Insert wrapper
     const htmlFull = `<div id="modal-wrapper"></div>`;
-    // Insert After
     gallery.insertAdjacentHTML('afterend', htmlFull);
 
+    // define global modal wrapper
     modalWrapper = document.querySelector('#modal-wrapper');
 
     modalWrapper.addEventListener('click', () => {
@@ -90,38 +141,51 @@ function generateModalWrappers() {
         if (closeBTN) {
             document.querySelector('.modal-container').remove();
         }
-
         if (prevBTN) {
             modalToggle(true);
         }
-
         if (nextBTN) {
             modalToggle();
         }
     });
 }
 
+/**
+ * Toggles to next or previous modal
+ *
+ * @param {boolean} prev if is supposed to go backwards or not
+ */
 function modalToggle(prev) {
+    // Gets current ID
     const index = parseInt(document.querySelector('.modal-info-container').getAttribute('data-id'));
     const apiUserCount = apiUsers.length - 1;
     let newUserID = 0;
 
+    // If is previous go backwards
     if (prev) {
         if (index > 0) {
             newUserID = index - 1;
         } else {
             newUserID = apiUserCount;
         }
-    } else {
+    } 
+    // Otherwise move forward
+    else {
         if (index < apiUserCount) {
             newUserID = index + 1;
-        } else {
-            newUserID = 0;
         }
     }
     generateSingleModal(apiUsers[newUserID], newUserID);
 }
 
+/**
+ * Creates markup for modal
+ * Only replaces part of the modal if is toggling
+ *
+ * @param {object} user json user object
+ * @param {integer} index current user id sequence
+ * @param {boolean} toggle if is being use for toggle
+ */
 function generateSingleModal(user, index, toggle) {
     const picURL = user.picture.large;
     const firstName = user.name.first
@@ -141,14 +205,6 @@ function generateSingleModal(user, index, toggle) {
     let htmlMiddle;
     let htmlLast;
 
-    if (!toggle) {
-        htmlStart = `
-            <div class="modal-container">
-                <div class="modal">
-                    <button type="button" id="modal-close-btn" class="modal-close-btn"><strong>X</strong></button>
-        `;
-    }
-
     htmlMiddle = `
         <div id="modal-info-container-wrapper">
             <div class="modal-info-container" data-id="${index}">
@@ -165,6 +221,12 @@ function generateSingleModal(user, index, toggle) {
     `;
 
     if (!toggle) {
+        htmlStart = `
+            <div class="modal-container">
+                <div class="modal">
+                    <button type="button" id="modal-close-btn" class="modal-close-btn"><strong>X</strong></button>
+        `;
+
         htmlLast = `</div>
                 <div class="modal-btn-container">
                     <button type="button" id="modal-prev" class="modal-prev btn">Prev</button>
@@ -172,18 +234,20 @@ function generateSingleModal(user, index, toggle) {
                 </div>
             </div>
         `;
-    }
-    
-    // Insert After
-    if (!toggle) {
+
         modalWrapper.innerHTML = htmlStart + htmlMiddle + htmlLast;
     } else {
         document.querySelector('#modal-info-container-wrapper').innerHTML = htmlMiddle;
     }
 }
 
+//=============================================================================
+// SEARCH FUNCTIONS
+//=============================================================================
 
-
+/**
+ * Creates search functionality
+ */
 function generateForm() {
     let globalTimeout = null; 
     const names = document.querySelectorAll('.card .card-name');
@@ -224,22 +288,28 @@ function generateForm() {
     });
 }
 
+/**
+ * Creates markup for modal
+ * Only replaces part of the modal if is toggling
+ *
+ * @param {string} keyword string to search
+ * @param {array} names array of elements to compare keyword
+ */
 function triggerSearch(keyword, names) {
+    // Reset search results
     searchList.length = 0;
 
     // Pushes any matching names to global array searchList
     for (let i = 0; i < names.length; i++) {
-
         let studentName = names[i].textContent.toLowerCase();
-
         if (studentName.includes(keyword)) {
             let li = names[i].parentNode.parentNode;
             searchList.push(li);
         }
     }
 
+    // Hides or displays cards based on searchlist
     const cards = document.querySelectorAll('.card');
-
     if (searchList.length > 0) {
         cards.forEach(item => {
             item.style.display = 'none';
@@ -252,20 +322,4 @@ function triggerSearch(keyword, names) {
             item.style.display = '';
         });
     }
-    
 }
-
-// ------------------------------------------
-//  Listeners
-// ------------------------------------------
-gallery.addEventListener('click', function (e) {
-    // find the closest .card parent
-    var el = event.target.closest('.card');
-    if (el) {
-        const index = [...el.parentElement.children].indexOf(el);
-        generateSingleModal(apiUsers[index], index);
-    }
-});
-
-
-
