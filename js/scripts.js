@@ -1,6 +1,8 @@
 // Get and display 12 random 
 let apiUsers;
 let searchList = [];
+let modalWrapper;
+const body = document.querySelector('body');
 const gallery = document.querySelector('#gallery');
 const searchContainer = document.querySelector('.search-container');
     
@@ -38,6 +40,7 @@ function generateUsers(data) {
     gallery.innerHTML = cardsHTML;
 
     generateForm();
+    generateModalWrappers();
 }
 
 function generateCard(user, index) {
@@ -72,7 +75,54 @@ function formatBirthday(string){
     return birthday;
 }
 
-function generateModal(user) {
+function generateModalWrappers() {
+    const htmlFull = `<div id="modal-wrapper"></div>`;
+    // Insert After
+    gallery.insertAdjacentHTML('afterend', htmlFull);
+
+    modalWrapper = document.querySelector('#modal-wrapper');
+
+    modalWrapper.addEventListener('click', () => {
+        const closeBTN = event.target.closest('#modal-close-btn');
+        const prevBTN = event.target.closest('#modal-prev');
+        const nextBTN = event.target.closest('#modal-next');
+
+        if (closeBTN) {
+            document.querySelector('.modal-container').remove();
+        }
+
+        if (prevBTN) {
+            modalToggle(true);
+        }
+
+        if (nextBTN) {
+            modalToggle();
+        }
+    });
+}
+
+function modalToggle(prev) {
+    const index = parseInt(document.querySelector('.modal-info-container').getAttribute('data-id'));
+    const apiUserCount = apiUsers.length - 1;
+    let newUserID = 0;
+
+    if (prev) {
+        if (index > 0) {
+            newUserID = index - 1;
+        } else {
+            newUserID = apiUserCount;
+        }
+    } else {
+        if (index < apiUserCount) {
+            newUserID = index + 1;
+        } else {
+            newUserID = 0;
+        }
+    }
+    generateSingleModal(apiUsers[newUserID], newUserID);
+}
+
+function generateSingleModal(user, index, toggle) {
     const picURL = user.picture.large;
     const firstName = user.name.first
     const lastName = user.name.last
@@ -87,14 +137,21 @@ function generateModal(user) {
         address += state + ' ';
         address += user.location.postcode;
 
-    const htmlStart = `
+    let htmlStart;
+    let htmlMiddle;
+    let htmlLast;
+
+    if (!toggle) {
+        htmlStart = `
             <div class="modal-container">
                 <div class="modal">
                     <button type="button" id="modal-close-btn" class="modal-close-btn"><strong>X</strong></button>
         `;
+    }
 
-    const htmlMiddle = `
-            <div class="modal-info-container">
+    htmlMiddle = `
+        <div id="modal-info-container-wrapper">
+            <div class="modal-info-container" data-id="${index}">
                 <img class="modal-img" src="${picURL}" alt="${firstName} ${lastName} profile picture">
                 <h3 class="modal-name cap">${firstName} ${lastName}</h3>
                 <p class="modal-text">${email}</p>
@@ -104,23 +161,25 @@ function generateModal(user) {
                 <p class="modal-text">${address}</p>
                 <p class="modal-text">${birthday}</p>
             </div>
-        `;
+        </div>
+    `;
 
-    const htmlLast = `</div>
+    if (!toggle) {
+        htmlLast = `</div>
                 <div class="modal-btn-container">
                     <button type="button" id="modal-prev" class="modal-prev btn">Prev</button>
                     <button type="button" id="modal-next" class="modal-next btn">Next</button>
                 </div>
-            </div>`;
-
-    const htmlFull = htmlStart + htmlMiddle + htmlLast;
+            </div>
+        `;
+    }
     
     // Insert After
-    gallery.insertAdjacentHTML('afterend', htmlFull);
-
-    document.querySelector('#modal-close-btn').addEventListener('click', () =>{
-        document.querySelector('.modal-container').remove();
-    });
+    if (!toggle) {
+        modalWrapper.innerHTML = htmlStart + htmlMiddle + htmlLast;
+    } else {
+        document.querySelector('#modal-info-container-wrapper').innerHTML = htmlMiddle;
+    }
 }
 
 
@@ -204,7 +263,9 @@ gallery.addEventListener('click', function (e) {
     var el = event.target.closest('.card');
     if (el) {
         const index = [...el.parentElement.children].indexOf(el);
-        generateModal(apiUsers[index]);
+        generateSingleModal(apiUsers[index], index);
     }
 });
+
+
 
