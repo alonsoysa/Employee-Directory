@@ -1,6 +1,8 @@
 // Get and display 12 random 
 let apiUsers;
+let searchList = [];
 const gallery = document.querySelector('#gallery');
+const searchContainer = document.querySelector('.search-container');
     
 // ------------------------------------------
 //  FETCH FUNCTIONS
@@ -34,6 +36,8 @@ function generateUsers(data) {
     // add cards to screen
     const cardsHTML = data.map((user, index) => generateCard(user, index)).join('');
     gallery.innerHTML = cardsHTML;
+
+    generateForm();
 }
 
 function generateCard(user, index) {
@@ -45,7 +49,7 @@ function generateCard(user, index) {
     const state = user.location.state;
 
     const html = `
-        <a class="card" data-id="${index}" data-info-picture="">
+        <div class="card">
             <div class="card-img-container">
                 <img class="card-img" src="${picURL}" alt="${firstName} ${lastName} profile picture">
             </div>
@@ -54,7 +58,7 @@ function generateCard(user, index) {
                 <p class="card-text">${email}</p>
                 <p class="card-text cap">${city}, ${state}</p>
             </div>
-        </a>
+        </div>
     `;
     return html;
 }
@@ -92,7 +96,7 @@ function generateModal(user) {
     const htmlMiddle = `
             <div class="modal-info-container">
                 <img class="modal-img" src="${picURL}" alt="${firstName} ${lastName} profile picture">
-                <h3 id="name" class="modal-name cap">${firstName} ${lastName}</h3>
+                <h3 class="modal-name cap">${firstName} ${lastName}</h3>
                 <p class="modal-text">${email}</p>
                 <p class="modal-text cap">${city}</p>
                 <hr>
@@ -119,6 +123,79 @@ function generateModal(user) {
     });
 }
 
+
+
+function generateForm() {
+    let globalTimeout = null; 
+    const names = document.querySelectorAll('.card .card-name');
+    const html = `
+        <form action="#" method="get">
+            <input type="search" id="search-input" class="search-input" placeholder="Search..."><input type="submit" value="&#x1F50D;" id="search-submit" class="search-submit">
+        </form>`;
+
+    searchContainer.innerHTML = html;
+
+    const searchField = document.querySelector('#search-input');
+    searchField.addEventListener('keyup', e => {
+        let keyword = e.target.value.toLowerCase();
+        // A
+        // Listen for when someone pressed enter and execute right away
+        if (e.keyCode === 13) {
+            triggerSearch(keyword, names);
+        }
+
+        // Otherwise wait .3 seconds before executing code.
+        // This prevents from code running too many times
+        else {
+            if (globalTimeout != null) {
+                clearTimeout(globalTimeout);
+            }
+            globalTimeout = setTimeout(() => {
+                triggerSearch(keyword, names);
+            }, 750);
+        }
+        return false;
+    });
+
+    const searchButton = document.querySelector('#search-submit');
+    searchButton.addEventListener('click', e => {
+        let keyword = searchField.value.toLowerCase();
+        triggerSearch(keyword, names);
+        return false;
+    });
+}
+
+function triggerSearch(keyword, names) {
+    searchList.length = 0;
+
+    // Pushes any matching names to global array searchList
+    for (let i = 0; i < names.length; i++) {
+
+        let studentName = names[i].textContent.toLowerCase();
+
+        if (studentName.includes(keyword)) {
+            let li = names[i].parentNode.parentNode;
+            searchList.push(li);
+        }
+    }
+
+    const cards = document.querySelectorAll('.card');
+
+    if (searchList.length > 0) {
+        cards.forEach(item => {
+            item.style.display = 'none';
+        });
+        searchList.forEach(item => {
+            item.style.display = '';
+        });
+    } else {
+        cards.forEach(item => {
+            item.style.display = '';
+        });
+    }
+    
+}
+
 // ------------------------------------------
 //  Listeners
 // ------------------------------------------
@@ -130,3 +207,4 @@ gallery.addEventListener('click', function (e) {
         generateModal(apiUsers[index]);
     }
 });
+
