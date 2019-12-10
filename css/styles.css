@@ -131,11 +131,7 @@ header h1 {
     bottom: 0;
     left: 0;
     background: rgba(0, 0, 0, 0.7);
-    display: none;
 }
-    .modal-container.js-active {
-        display: block;
-    }
 
 .modal {
     position: relative;
@@ -148,13 +144,6 @@ header h1 {
     border-radius: 0.25em;
     border: 1px solid rgba(100, 100, 100, 0.3);
     transition: .4s ease-out;
-}
-
-.modal-info-container {
-    display: none;
-}
-.modal-info-container.js-active {
-    display: block;
 }
 
 .modal-close-btn {

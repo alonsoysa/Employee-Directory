@@ -1,4 +1,5 @@
 // Get and display 12 random 
+let apiUsers;
 const gallery = document.querySelector('#gallery');
     
 // ------------------------------------------
@@ -11,7 +12,7 @@ function fetchData(url) {
             .catch(error => console.log('bad', error));
 }
 
-fetchData('https://randomuser.me/api/?results=12')
+fetchData('https://randomuser.me/api/?results=12&nat=us')
     .then(data => generateUsers(data.results));
 
 
@@ -30,42 +31,21 @@ function generateUsers(data) {
     // Set the global apiUsers to the current randomUser data
     apiUsers = data;
 
-    // Add cards to the app
-    const cardsHTML = data.map((item, index) => generateCardHTML(item, index)).join('');
+    // add cards to screen
+    const cardsHTML = data.map((user, index) => generateCard(user, index)).join('');
     gallery.innerHTML = cardsHTML;
-
-    let popupsHTML = data.map((item, index) => generateModalHTML(item, index)).join('');
-
-
-    popupsHTML = `<div class="modal-container">
-                <div class="modal">
-                    <button type="button" id="modal-close-btn" class="modal-close-btn"><strong>X</strong></button>
-                    ${popupsHTML}
-                </div>
-                <div class="modal-btn-container">
-                    <button type="button" id="modal-prev" class="modal-prev btn">Prev</button>
-                    <button type="button" id="modal-next" class="modal-next btn">Next</button>
-                </div>
-            </div>`;
-
-    // Insert After
-    gallery.insertAdjacentHTML('afterend', popupsHTML);
-
-    generateListeners();
 }
 
-function generateCardHTML(item, index) {
-    console.log(item);
-
-    const picURL =  item.picture.large;
-    const firstName = item.name.first
-    const lastName = item.name.last
-    const email = item.email;
-    const city = item.location.city;
-    const state = item.location.state;
+function generateCard(user, index) {
+    const picURL =  user.picture.large; 
+    const firstName = user.name.first
+    const lastName = user.name.last
+    const email = user.email;
+    const city = user.location.city;
+    const state = user.location.state;
 
     const html = `
-        <a class="card" data-id="${index}">
+        <a class="card" data-id="${index}" data-info-picture="">
             <div class="card-img-container">
                 <img class="card-img" src="${picURL}" alt="${firstName} ${lastName} profile picture">
             </div>
@@ -79,63 +59,65 @@ function generateCardHTML(item, index) {
     return html;
 }
 
-function generateModalHTML(item, index) {
-    const picURL = item.picture.large;
-    const firstName = item.name.first
-    const lastName = item.name.last
-    const email = item.email;
-    const city = item.location.city;
-    const state = item.location.state;
-    const phone = item.phone;
-    const birthday = item.dob.date;
-    let address = item.location.street.number + ' ' 
-        address += item.location.street.name + ', ';
+function generateModal(user) {
+    const picURL = user.picture.large;
+    const firstName = user.name.first
+    const lastName = user.name.last
+    const email = user.email;
+    const city = user.location.city;
+    const state = user.location.state;
+    const phone = user.phone;
+    const birthday = user.dob.date;
+    let address = user.location.street.number + ' ' 
+        address += user.location.street.name + ', ';
         address += city + ', ';
         address += state + ' ';
-        address += item.location.postcode;
+        address += user.location.postcode;
 
-    const html = `
-                <div class="modal-info-container" data-id="${index}">
-                    <img class="modal-img" src="${picURL}" alt="${firstName} ${lastName} profile picture">
-                    <h3 id="name" class="modal-name cap">${firstName} ${lastName}</h3>
-                    <p class="modal-text">${email}</p>
-                    <p class="modal-text cap">${city}</p>
-                    <hr>
-                    <p class="modal-text">${phone}</p>
-                    <p class="modal-text">${address}</p>
-                    <p class="modal-text">${birthday}</p>
-                </div>
+    const htmlStart = `
+            <div class="modal-container">
+                <div class="modal">
+                    <button type="button" id="modal-close-btn" class="modal-close-btn"><strong>X</strong></button>
         `;
+
+    const htmlMiddle = `
+            <div class="modal-info-container">
+                <img class="modal-img" src="${picURL}" alt="${firstName} ${lastName} profile picture">
+                <h3 id="name" class="modal-name cap">${firstName} ${lastName}</h3>
+                <p class="modal-text">${email}</p>
+                <p class="modal-text cap">${city}</p>
+                <hr>
+                <p class="modal-text">${phone}</p>
+                <p class="modal-text">${address}</p>
+                <p class="modal-text">${birthday}</p>
+            </div>
+        `;
+
+    const htmlLast = `</div>
+                <div class="modal-btn-container">
+                    <button type="button" id="modal-prev" class="modal-prev btn">Prev</button>
+                    <button type="button" id="modal-next" class="modal-next btn">Next</button>
+                </div>
+            </div>`;
+
+    const htmlFull = htmlStart + htmlMiddle + htmlLast;
     
-    return html;
+    // Insert After
+    gallery.insertAdjacentHTML('afterend', htmlFull);
+
+    document.querySelector('#modal-close-btn').addEventListener('click', () =>{
+        document.querySelector('.modal-container').remove();
+    });
 }
 
 // ------------------------------------------
 //  Listeners
 // ------------------------------------------
-function generateListeners() {
-    gallery.addEventListener('click', (event) => {
-        let card;
-        if (event.target.hasAttribute('data-id')) {
-            card = event.target.getAttribute('data-id');
-        } else {
-            if (!event.target.closest('.card')) return;
-            card = event.target.closest('.card').getAttribute('data-id');
-        }
-
-        const modalContainer = document.querySelector('.modal-container');
-        const targetModal = document.querySelector('.modal-container [data-id="' + card + '"]');
-        console.log(targetModal);
-        modalContainer.classList.add('js-active');
-        targetModal.classList.add('js-active');
-    });
-
-    document.querySelector('#modal-close-btn').addEventListener('click', (event) => {
-
-        document.querySelectorAll('.js-active').forEach( item => {
-            item.classList.remove('js-active');
-            console.log('a');
-        });
-        
-    });
-}
+gallery.addEventListener('click', function (e) {
+    // find the closest .card parent
+    var el = event.target.closest('.card');
+    if (el) {
+        const index = [...el.parentElement.children].indexOf(el);
+        generateModal(apiUsers[index]);
+    }
+});
