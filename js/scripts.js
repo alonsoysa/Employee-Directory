@@ -36,15 +36,22 @@ function generateUsers(data) {
 
     let popupsHTML = data.map((item, index) => generateModalHTML(item, index)).join('');
 
-    popupsHTML = '<div class="modal-container">' + popupsHTML;
-    popupsHTML += `<div class="modal-btn-container">
+
+    popupsHTML = `<div class="modal-container">
+                <div class="modal">
+                    <button type="button" id="modal-close-btn" class="modal-close-btn"><strong>X</strong></button>
+                    ${popupsHTML}
+                </div>
+                <div class="modal-btn-container">
                     <button type="button" id="modal-prev" class="modal-prev btn">Prev</button>
                     <button type="button" id="modal-next" class="modal-next btn">Next</button>
-                </div>`;
-    popupsHTML += '</div>';
+                </div>
+            </div>`;
 
     // Insert After
     gallery.insertAdjacentHTML('afterend', popupsHTML);
+
+    generateListeners();
 }
 
 function generateCardHTML(item, index) {
@@ -88,9 +95,7 @@ function generateModalHTML(item, index) {
         address += item.location.postcode;
 
     const html = `
-            <div class="modal" data-id="${index}">
-                <button type="button" id="modal-close-btn" class="modal-close-btn"><strong>X</strong></button>
-                <div class="modal-info-container">
+                <div class="modal-info-container" data-id="${index}">
                     <img class="modal-img" src="${picURL}" alt="${firstName} ${lastName} profile picture">
                     <h3 id="name" class="modal-name cap">${firstName} ${lastName}</h3>
                     <p class="modal-text">${email}</p>
@@ -100,7 +105,6 @@ function generateModalHTML(item, index) {
                     <p class="modal-text">${address}</p>
                     <p class="modal-text">${birthday}</p>
                 </div>
-            </div>
         `;
     
     return html;
@@ -109,18 +113,29 @@ function generateModalHTML(item, index) {
 // ------------------------------------------
 //  Listeners
 // ------------------------------------------
-gallery.addEventListener('click', (event) => {
-    let card; 
-    if (event.target.hasAttribute('data-id')) {
-        card = event.target.getAttribute('data-id');
-    } else {
-        if ( !event.target.closest('.card') ) return;
-        card = event.target.closest('.card').getAttribute('data-id');
-    }
+function generateListeners() {
+    gallery.addEventListener('click', (event) => {
+        let card;
+        if (event.target.hasAttribute('data-id')) {
+            card = event.target.getAttribute('data-id');
+        } else {
+            if (!event.target.closest('.card')) return;
+            card = event.target.closest('.card').getAttribute('data-id');
+        }
 
-    const modalContainer = document.querySelector('.modal-container');
-    const targetModal = document.querySelector('.modal-container [data-id="' + card + '"]');
-    console.log(targetModal);
-    modalContainer.classList.add('js-active');
-    targetModal.classList.add('js-active');
-});
+        const modalContainer = document.querySelector('.modal-container');
+        const targetModal = document.querySelector('.modal-container [data-id="' + card + '"]');
+        console.log(targetModal);
+        modalContainer.classList.add('js-active');
+        targetModal.classList.add('js-active');
+    });
+
+    document.querySelector('#modal-close-btn').addEventListener('click', (event) => {
+
+        document.querySelectorAll('.js-active').forEach( item => {
+            item.classList.remove('js-active');
+            console.log('a');
+        });
+        
+    });
+}
