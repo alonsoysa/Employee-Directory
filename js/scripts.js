@@ -1,6 +1,5 @@
 // Get and display 12 random 
 const gallery = document.querySelector('#gallery');
-let apiUsers;
     
 // ------------------------------------------
 //  FETCH FUNCTIONS
@@ -113,10 +112,15 @@ function generateModalHTML(item, index) {
 gallery.addEventListener('click', (event) => {
     let card; 
     if (event.target.hasAttribute('data-id')) {
-        card = event.target;
+        card = event.target.getAttribute('data-id');
     } else {
         if ( !event.target.closest('.card') ) return;
-        card = event.target.closest('.card');
+        card = event.target.closest('.card').getAttribute('data-id');
     }
-    console.log(card.getAttribute('data-id'));
+
+    const modalContainer = document.querySelector('.modal-container');
+    const targetModal = document.querySelector('.modal-container [data-id="' + card + '"]');
+    console.log(targetModal);
+    modalContainer.classList.add('js-active');
+    targetModal.classList.add('js-active');
 });

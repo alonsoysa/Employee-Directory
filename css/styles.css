@@ -133,9 +133,9 @@ header h1 {
     background: rgba(0, 0, 0, 0.7);
     display: none;
 }
-.modal-container.js-active {
-    display: block;
-}
+    .modal-container.js-active {
+        display: block;
+    }
 
 .modal {
     position: relative;
@@ -150,6 +150,9 @@ header h1 {
     transition: .4s ease-out;
     display: none;
 }
+    .modal.js-active {
+        display: block;
+    }
 
 .modal-close-btn {
     position: absolute;
