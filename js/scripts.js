@@ -59,6 +59,15 @@ function generateCard(user, index) {
     return html;
 }
 
+function formatBirthday(string){
+    const event = new Date(string);
+    const date = ('0' + event.getDate() ).slice(-2);
+    const month = ('0' + event.getMonth()).slice(-2);
+    let year = event.getFullYear().toString().slice(-2);
+    let birthday = date + '/' + month + '/' + year;
+    return birthday;
+}
+
 function generateModal(user) {
     const picURL = user.picture.large;
     const firstName = user.name.first
@@ -67,7 +76,7 @@ function generateModal(user) {
     const city = user.location.city;
     const state = user.location.state;
     const phone = user.phone;
-    const birthday = user.dob.date;
+    const birthday = formatBirthday(user.dob.date);
     let address = user.location.street.number + ' ' 
         address += user.location.street.name + ', ';
         address += city + ', ';
