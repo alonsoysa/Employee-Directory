@@ -39,7 +39,7 @@ CSS styles were provided at the start of the project, but was requested to add a
  - Added proper links for email and phone inside modal
 
 ### Before & After
-![Before](images/employee_directory.png)
-![After](images/employee_directory_after.png)
-![Before](images/employee_overlay.png)
-![After](images/employee_overlay_after.png)
+![Before](mockups/employee_directory.png)
+![After](mockups/employee_directory_after.png)
+![Before](mockups/employee_overlay.png)
+![After](mockups/employee_overlay_after.png)
