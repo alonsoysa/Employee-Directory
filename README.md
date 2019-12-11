@@ -22,6 +22,24 @@ browser-sync start --server --files "css/*.css"
 
 ## Style Updates
 
-CSS styles were provided at the start of the project, but was requested to add additional styles to improve the look of the application. Bellow are the additional changes I've made:
+CSS styles were provided at the start of the project, but was requested to add additional styles to improve the look of the application without affection the layout. Bellow are the additional changes I've made:
 
- - 
+ - Updated font to Open Sans for better legibility
+ - Removed borders that made the app look outdated
+ - Set a standard border radius of 6px
+ - Changed to brighter colours
+ - Added a darker background behind the cards for better readability
+ - Added hover effect for cards
+ - Styled scrollbars to match the app design
+ - Adjusted space around the modal
+ - Changed hr styles for something cleaner
+ - Updated button styles to match the app
+ - Added a blur effect for chrome
+ - Added animations for presenting the modal
+ - Added proper links for email and phone inside modal
+
+### Before & After
+![Before](images/employee_directory.png)
+![After](images/employee_directory_after.png)
+![Before](images/employee_overlay.png)
+![After](images/employee_overlay_after.png)

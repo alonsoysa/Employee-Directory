@@ -112,6 +112,7 @@ header h1 {
     margin: auto;
     padding-bottom: 15px;
     border-radius: 0 0 6px 6px;
+    margin-bottom: 30px;
     background-image: radial-gradient(circle farthest-corner at -8.9% 51.2%, rgba(255, 124, 0, 1) 0%, rgba(255, 124, 0, 1) 15.9%, rgba(255, 163, 77, 1) 15.9%, rgba(255, 163, 77, 1) 24.4%, rgba(19, 30, 37, 1) 24.5%, rgba(19, 30, 37, 1) 66%);
 }
   
@@ -229,6 +230,10 @@ header h1 {
     color: rgba(50, 50, 50, 0.7);
     margin: 10px;
     font-size: 14px;
+}
+
+.modal-text a {
+    color: inherit;
 }
 
 .modal hr {
@@ -363,5 +368,8 @@ header h1 {
     .modal-close-btn:hover {
         color: #fff;
         background: rgb(255, 163, 1);
+    }
+    .modal-text a:hover {
+        color: rgb(255, 163, 1);
     }
 }

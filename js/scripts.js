@@ -293,10 +293,10 @@ function generateSingleModal(user, index, toggle) {
             <div class="modal-info-container" data-id="${index}">
                 <img class="modal-img" src="${picURL}" alt="${firstName} ${lastName} profile picture">
                 <h3 class="modal-name cap">${firstName} ${lastName}</h3>
-                <p class="modal-text">${email}</p>
+                <p class="modal-text"><a href="mailto:${email}">${email}</a></p>
                 <p class="modal-text cap">${city}</p>
                 <hr>
-                <p class="modal-text">${phone}</p>
+                <p class="modal-text"><a href="tel:${phone}">${phone}</a></p>
                 <p class="modal-text">${address}</p>
                 <p class="modal-text">Birthday: ${birthday}</p>
             </div>
